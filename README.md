@@ -38,6 +38,6 @@ octoverse
     > ./Seaouid.sol
     > ./OctopusGame.sol
   > scripts
-    > ./octoverseWeb3js.js
+    > ./index.html
 ```
 
