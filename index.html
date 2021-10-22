@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Octopusses front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="octoverse_abi.js"></script>
+  </head>
+  <body>
+    <div id="txStatus"></div>
+    <div id="octopusses"></div>
+
+    <script>
+      var octopusses;
+      var userAccount;
+
+      function startApp() {
+        var octoverseAddress = "YOUR_CONTRACT_ADDRESS";
+        cryptoZombies = new web3js.eth.Contract(octoverseABI, octoverseAddress);
+
+        var accountInterval = setInterval(function() {
+          // Check if account has changed
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // Call a function to update the UI with the new account
+            getOctopussesByOwner(userAccount)
+            .then(displayOctopus);
+          }
+        }, 100);
+
+        // Start here
+      }
+
+      function displayOctopus(ids) {
+        $("#octopus").empty();
+        for (id of ids) {
+          // Look up octopus details from our contract. Returns a `octopus` object
+          getOctopusDetails(id)
+          .then(function(octopus) {
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #octopusses div
+            $("#octopusses").append(`<div class="octopusses">
+              <ul>
+                <li>Name: ${octopus.name}</li>
+                <li>DNA: ${octopus.dna}</li>
+                <li>Level: ${octopus.level}</li>
+                <li>Wins: ${octopus.winCount}</li>
+                <li>Losses: ${octopus.lossCount}</li>
+              </ul>
+            </div>`);
+          });
+        }
+      }
+
+      function createOctopus(name) {
+        // This is going to take a while, so update the UI to let the user know
+        // the transaction has been sent
+        $("#txStatus").text("Creating new octopus on the blockchain. This may take a while...");
+        // Send the tx to our contract:
+        return octoverse.methods.createOctopus(name)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Successfully created " + name + "!");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          getOctopusByOwner(userAccount).then(displayOctopus);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
+      function getOctopusDetails(id) {
+        return octoverse.methods.octopusses(id).call()
+      }
+
+      function octopusToOwner(id) {
+        return octoverse.methods.octopusToOwner(id).call()
+      }
+
+      function getOctopusByOwner(owner) {
+        return octopus.methods.getOctopusByOwner(owner).call()
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>
