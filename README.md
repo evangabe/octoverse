@@ -1,4 +1,4 @@
-# Octoverse
+# :octopus:  ***OCTOVERSE***  :octopus:
 Solidity smart contracts for Octoverse decentralized play-to-earn game.
 
 ### Currency: __seaouid__ Token
