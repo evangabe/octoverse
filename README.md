@@ -41,3 +41,8 @@ octoverse
     > ./index.html
 ```
 
+# Roadmap
+### 1. Interface with OpenZeppelin's ERC721 token library.
+### 2. Implement game mechanics into OctopusGame.sol
+### 3. Develop animation for OctopusGame
+
